@@ -6,7 +6,7 @@ Build Satus:
 [![Azure Static Web Apps CI/CD](https://github.com/michalmar/hack-for-translation/actions/workflows/azure-static-web-apps-icy-bush-08c57d903.yml/badge.svg)](https://github.com/michalmar/hack-for-translation/actions/workflows/azure-static-web-apps-icy-bush-08c57d903.yml)
 
 Web page:
-[ashy-bush-0eafc1203](https://ashy-bush-0eafc1203.1.azurestaticapps.net)
+[aka.ms/cogs4me](https://aka.ms/cogs4me)
 
 ### `pip install  -r api\requirements.txt`
 To install env for the API/Functions
