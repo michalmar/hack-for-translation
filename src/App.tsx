@@ -102,16 +102,6 @@ type translateDocResponse = {
 
 // export default class App extends Component {
 export const App: React.FunctionComponent = () => {
-  // constructor(props) {
-  //   super(props);
-
-  //   this.state = {
-  //     displayText: "INITIALIZED: ready to test speech...",
-  //     cs: "",
-  //     pl: "",
-  //     pt: "",
-  //   };
-  // }
 
   // speech translation
   const [displayText, setDisplayText] = useState<string>("Zmáčkněte start a mluvte....")
@@ -316,35 +306,20 @@ export const App: React.FunctionComponent = () => {
     return {authToken:"x",region:"x"}; 
   }
 
-
-
-  // async componentDidMount() {
-  //   // check for valid speech key/region
-  //   const tokenRes = await getTokenOrRefresh();
-  //   if (tokenRes.authToken === null) {
-  //     this.setState({
-  //       displayText: "FATAL_ERROR: " + tokenRes.error,
-  //     });
-  //   }
-  // }
-
-  // async sttFromMic() {
   const sttFromMic = async () => {
-    // this.setState({
-    //   displayText: "speak into your microphone...",
-    // });
-    setRecognizing(true)
-    // setDisplayText("speak to mic...")
 
-    // const tokenObj = await getTokenOrRefresh();
+    setRecognizing(true)
+
+    // get the speech token (either from SDK or from Cookie)
     let speechToken  = await getToken();
-    console.log("region:"+speechToken.region)
+
     const speechConfig =
       speechsdk.SpeechTranslationConfig.fromAuthorizationToken(
         speechToken.authToken,
         speechToken.region
         
       );
+
     // speechConfig.speechRecognitionLanguage = "en-US";
     speechConfig.speechRecognitionLanguage = "cs-CZ";
     optionsSpeech.forEach((option) => {
@@ -425,7 +400,8 @@ export const App: React.FunctionComponent = () => {
             <TextField label="Váš text" multiline rows={3} value={text} onChange={onTextChange} required={true} />
             <ChoiceGroup defaultSelectedKey="ukcs" options={options} onChange={onChoiceChange} label="Směr překladu" required={true} />
             <PrimaryButton text="Přeložit" allowDisabledFocus disabled={uploading} checked={false} onClick={onTranslate}/>
-            <TextField label="Překlad" multiline rows={3} disabled={!processed} value={translatedResults?.translations[0].text}/>
+            <Label styles={labelStyles}>Výsledek</Label>
+            <Text block={true} className="translated-text">{processed? translatedResults?.translations[0].text : ""}</Text>
           </Stack>
         </PivotItem>
         <PivotItem headerText="Překlad dokumentu (CZ -> UA)">
