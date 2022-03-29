@@ -1,0 +1,66 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "docker-build",
+			"label": "docker-build",
+			"platform": "node",
+			"dockerBuild": {
+				"dockerfile": "${workspaceFolder}/Dockerfile",
+				"context": "${workspaceFolder}",
+				"pull": true
+			}
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: release",
+			"dependsOn": [
+				"docker-build"
+			],
+			"platform": "node"
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: debug",
+			"dependsOn": [
+				"docker-build"
+			],
+			"dockerRun": {
+				"env": {
+					"DEBUG": "*",
+					"NODE_ENV": "development"
+				}
+			},
+			"node": {
+				"enableDebugging": true
+			}
+		},
+		{
+			"type": "func",
+			"command": "host start",
+			"problemMatcher": "$func-python-watch",
+			"isBackground": true,
+			"dependsOn": "pip install (functions)",
+			"options": {
+				"cwd": "${workspaceFolder}/api"
+			}
+		},
+		{
+			"label": "pip install (functions)",
+			"type": "shell",
+			"osx": {
+				"command": "${config:azureFunctions.pythonVenv}/bin/python -m pip install -r requirements.txt"
+			},
+			"windows": {
+				"command": "${config:azureFunctions.pythonVenv}\\Scripts\\python -m pip install -r requirements.txt"
+			},
+			"linux": {
+				"command": "${config:azureFunctions.pythonVenv}/bin/python -m pip install -r requirements.txt"
+			},
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}/api"
+			}
+		}
+	]
+}
