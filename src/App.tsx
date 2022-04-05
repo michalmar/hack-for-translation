@@ -30,7 +30,7 @@ import {
   IDocumentCardPreviewProps,
 } from '@fluentui/react/lib/DocumentCard';
 import { ImageFit } from '@fluentui/react/lib/Image';
-import { ActivityItem, IActivityItemProps, Icon, Link, mergeStyleSets } from '@fluentui/react';
+import { ActivityItem, IActivityItemProps, Link } from '@fluentui/react';
 
 
 const speechsdk = require("microsoft-cognitiveservices-speech-sdk");
@@ -116,7 +116,7 @@ export const App: React.FunctionComponent = () => {
   const [en, setEN] = useState<string>("Press start and speak...");
   const [pl, setPL] = useState<string>("Naciśnij start i mów...");
   const [uk, setUK] = useState<string>("Натисніть почати і говорити...");
-  const [cs, setCS] = useState<string>("Zmáčkněte start a mluvte....");
+  // const [cs, setCS] = useState<string>("Zmáčkněte start a mluvte....");
 
   const [patientSpeaking, setPatientSpeaking] = useState<boolean>(false);
   const [recognizing, setRecognizing] = useState(false);
@@ -488,13 +488,13 @@ export const App: React.FunctionComponent = () => {
       // recognizer.recognizing = (s, e) => {
       recognizer.recognizing = (s: TranslationRecognizer, e: TranslationRecognitionEventArgs) => {
         // console.log("recognizing ", e);
-        let result = "";
+        // let result = "";
         if (
           e.result.reason === ResultReason.RecognizedSpeech
         ) {
-          result = `TRANSLATED: Text=${e.result.text}`;
+          // result = `TRANSLATED: Text=${e.result.text}`;
         } else if (e.result.reason === ResultReason.NoMatch) {
-          result = "NOMATCH: Speech could not be translated.";
+          // result = "NOMATCH: Speech could not be translated.";
         }
         // console.log(result);
         // setEN(e.result.translations.get("en"));
@@ -569,20 +569,20 @@ export const App: React.FunctionComponent = () => {
       // recognizer.recognizing = (s, e) => {
       recognizer.recognizing = (s: TranslationRecognizer, e: TranslationRecognitionEventArgs) => {
         // console.log("recognizing ", e);
-        let result = "";
+        // let result = "";
         if (
           e.result.reason === ResultReason.RecognizedSpeech
         ) {
-          result = `TRANSLATED: Text=${e.result.text}`;
+          // result = `TRANSLATED: Text=${e.result.text}`;
         } else if (e.result.reason === ResultReason.NoMatch) {
-          result = "NOMATCH: Speech could not be translated.";
+          // result = "NOMATCH: Speech could not be translated.";
         }
         // console.log(result);
         // setEN(e.result.translations.get("en"));
         // setPL(e.result.translations.get("pl"));
         // setUK(e.result.translations.get("uk"));
         // if (patientSpeaking) {
-          setCS(e.result.translations.get("cs"));
+          // setCS(e.result.translations.get("cs"));
           setDisplayText(e.result.text);
         // }
         
@@ -596,7 +596,7 @@ export const App: React.FunctionComponent = () => {
         // setUK(e.result.translations.get("uk"));
         // if (patientSpeaking) {
           console.log("prekladam pacienta")
-          setCS(e.result.translations.get("cs"));
+          // setCS(e.result.translations.get("cs"));
           setDisplayText(e.result.text);
           
           addEntryClick("Client",e.result.translations.get("cs"),e.result.text)
