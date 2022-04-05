@@ -31,4 +31,11 @@
     height: 100%;
   }
   
+  .activityItem {
+    margin-top: 40px;
+    padding-top: 10px;
+    padding-bottom: 30px;
+    border-bottom: 0px dashed #61dafb;
+  }
+  
   

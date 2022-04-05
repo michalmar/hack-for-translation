@@ -30,6 +30,7 @@ import {
   IDocumentCardPreviewProps,
 } from '@fluentui/react/lib/DocumentCard';
 import { ImageFit } from '@fluentui/react/lib/Image';
+import { ActivityItem, IActivityItemProps, Icon, Link, mergeStyleSets } from '@fluentui/react';
 
 
 const speechsdk = require("microsoft-cognitiveservices-speech-sdk");
@@ -37,6 +38,10 @@ const optionsSpeech = [
   { value: "en", label: "English", translation: "Emglish:" },
   { value: "pl", label: "Polish", translation: "Polish:" },
   { value: "uk", label: "Ukrainian", translation: "Ukrainian:" },
+];
+const choiceoptions: IChoiceGroupOption[] = [
+  { key: 'p', text: 'Pacient (UA)', iconProps: { iconName: 'Microphone' } },
+  { key: 'l', text: 'Lekar (CZ)', iconProps: { iconName: 'Microphone' } },
 ];
 
 
@@ -67,12 +72,12 @@ const options: IChoiceGroupOption[] = [
   { key: 'csuk', text: 'Česky -> Ukrajinsky' },
 ];
 
-const stackStyles: Partial<IStackStyles> = { root: { width: 650 } };
+const stackStyles: Partial<IStackStyles> = { root: { width: 850 } };
 const stackTokens = { childrenGap: 50 };
 // const dummyText: string = "aaaa";
 const columnProps: Partial<IStackProps> = {
   tokens: { childrenGap: 15 },
-  styles: { root: { width: 350 } },
+  styles: { root: { width: 650 } },
 };
 
 
@@ -100,6 +105,9 @@ type translateDocResponse = {
   translated_filename: string
 }
 
+// main variable for Speech Recognition
+var recognizer: TranslationRecognizer;
+
 // export default class App extends Component {
 export const App: React.FunctionComponent = () => {
 
@@ -108,9 +116,12 @@ export const App: React.FunctionComponent = () => {
   const [en, setEN] = useState<string>("Press start and speak...");
   const [pl, setPL] = useState<string>("Naciśnij start i mów...");
   const [uk, setUK] = useState<string>("Натисніть почати і говорити...");
+  const [cs, setCS] = useState<string>("Zmáčkněte start a mluvte....");
 
+  const [patientSpeaking, setPatientSpeaking] = useState<boolean>(false);
   const [recognizing, setRecognizing] = useState(false);
-
+  const [theArray, setTheArray] = useState<(IActivityItemProps & { key: string | number })[]>([]);
+  
 
   const [fileSelected, setFileSelected] = useState<File| null>();
   const [text, setText] = React.useState("Привіт Люба");
@@ -130,6 +141,41 @@ export const App: React.FunctionComponent = () => {
   const sleep = (milliseconds: number) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
   }
+
+  function getRandomInt() {
+    return Math.floor(Math.random() * 10000);
+  }
+  
+  const addEntryClick = (who:string, translation:string, original:string) => {
+      if(translation) {
+        let imgurl = "xxx"
+        if (who ==="Doctor") {
+          imgurl = "http://purecatamphetamine.github.io/country-flag-icons/3x2/CZ.svg"
+        }
+        else {
+          imgurl = "http://purecatamphetamine.github.io/country-flag-icons/3x2/UA.svg"
+        }
+        let key = getRandomInt();
+        let entry = {
+          key: key,
+          activityDescription: [
+            <Link>{who}</Link>,
+            <span> said</span>,
+          ],
+          // activityIcon: <Icon iconName={'Message'} />,
+          activityPersonas: [{ imageUrl: imgurl }],
+          comments: [
+            <span key={key+1}>{translation} </span>,
+            
+          ],
+          timeStamp: original,
+        }
+        setTheArray(oldArray => [...oldArray, entry]);
+        console.log("pridavam!"+key)
+      } else {
+        console.log("nepridavam")
+      }
+  };
 
   
   function api<T>(url: string, requestOptions: RequestInit): Promise<T[]> {
@@ -387,12 +433,207 @@ export const App: React.FunctionComponent = () => {
   }
 
 
+  // Speech recognition Speaker A / Speaker B
+  const sttFromMicStop = async() =>{
+    console.log("sttFromMicStop")
+    
+    if (recognizer) {
+      console.log("closing scenario....")
+      recognizer.stopContinuousRecognitionAsync();
+      // recognizer.close();
+      setRecognizing(false)
+    }
+  }
+
+  const sttFromMicDoctor = async () => {
+
+    console.log("sttFromMicDoctor")
+    setRecognizing(true)
+    if (recognizer) {
+      // recognizer.close();
+      console.log("closing....(starting doctor)")
+      recognizer.stopContinuousRecognitionAsync();
+      recognizer.close();
+    }
+
+    // get the speech token (either from SDK or from Cookie)
+    let speechToken  = await getToken();
+
+    const speechConfig =
+      speechsdk.SpeechTranslationConfig.fromAuthorizationToken(
+        speechToken.authToken,
+        speechToken.region
+        
+      );
+
+    // speechConfig.speechRecognitionLanguage = "en-US";
+    speechConfig.speechRecognitionLanguage = "cs-CZ";
+    // optionsSpeech.forEach((option) => {
+    //   speechConfig.addTargetLanguage(option.value);
+    // });
+    speechConfig.addTargetLanguage("uk");
+
+    const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
+    recognizer = new speechsdk.TranslationRecognizer(
+      speechConfig,
+      audioConfig
+    );
+    // setRecognizer(new speechsdk.TranslationRecognizer(
+    //     speechConfig,
+    //     audioConfig
+    //   ));
+
+  
+    if (recognizer) {
+      // recognizer.recognizing = (s, e) => {
+      recognizer.recognizing = (s: TranslationRecognizer, e: TranslationRecognitionEventArgs) => {
+        // console.log("recognizing ", e);
+        let result = "";
+        if (
+          e.result.reason === ResultReason.RecognizedSpeech
+        ) {
+          result = `TRANSLATED: Text=${e.result.text}`;
+        } else if (e.result.reason === ResultReason.NoMatch) {
+          result = "NOMATCH: Speech could not be translated.";
+        }
+        // console.log(result);
+        // setEN(e.result.translations.get("en"));
+        // setPL(e.result.translations.get("pl"));
+        // if (!patientSpeaking) {
+          setUK(e.result.translations.get("uk"));
+          setDisplayText(e.result.text);
+          
+        // }
+      };
+
+      // recognizer.recognized = (s, e) => {
+      recognizer.recognized = (s:TranslationRecognizer, e: TranslationRecognitionEventArgs) => {
+        // console.log("recognized ", e);
+        // setEN(e.result.translations.get("en"));
+        // setPL(e.result.translations.get("pl"));
+        // if (!patientSpeaking) {
+          console.log("prekladam lekare")
+          setUK(e.result.translations.get("uk"));
+          setDisplayText(e.result.text);
+          
+          addEntryClick("Doctor",e.result.translations.get("uk"), e.result.text)
+
+        // }
+      };
+
+      recognizer.startContinuousRecognitionAsync();
+    }
+    
+    
+
+  }
+  const sttFromMicPatient = async () => {
+
+    console.log("sttFromMicPatient")
+    setRecognizing(true)
+    if (recognizer) {
+      // recognizer.close();
+      console.log("closing....(starting patient)")
+      recognizer.stopContinuousRecognitionAsync();
+      recognizer.close();
+    }
+
+    // get the speech token (either from SDK or from Cookie)
+    let speechToken  = await getToken();
+
+    const speechConfig =
+      speechsdk.SpeechTranslationConfig.fromAuthorizationToken(
+        speechToken.authToken,
+        speechToken.region
+        
+      );
+
+    speechConfig.speechRecognitionLanguage = "en-US";
+    // speechConfig.speechRecognitionLanguage = "uk-UA";
+    // optionsSpeech.forEach((option) => {
+    //   speechConfig.addTargetLanguage(option.value);
+    // });
+    speechConfig.addTargetLanguage("cs");
+
+    const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
+    recognizer = new speechsdk.TranslationRecognizer(
+      speechConfig,
+      audioConfig
+    );
+    // setRecognizer(new speechsdk.TranslationRecognizer(
+    //   speechConfig,
+    //   audioConfig
+    // ));
+
+    if (recognizer) {    
+      // recognizer.recognizing = (s, e) => {
+      recognizer.recognizing = (s: TranslationRecognizer, e: TranslationRecognitionEventArgs) => {
+        // console.log("recognizing ", e);
+        let result = "";
+        if (
+          e.result.reason === ResultReason.RecognizedSpeech
+        ) {
+          result = `TRANSLATED: Text=${e.result.text}`;
+        } else if (e.result.reason === ResultReason.NoMatch) {
+          result = "NOMATCH: Speech could not be translated.";
+        }
+        // console.log(result);
+        // setEN(e.result.translations.get("en"));
+        // setPL(e.result.translations.get("pl"));
+        // setUK(e.result.translations.get("uk"));
+        // if (patientSpeaking) {
+          setCS(e.result.translations.get("cs"));
+          setDisplayText(e.result.text);
+        // }
+        
+      };
+
+      // recognizer.recognized = (s, e) => {
+      recognizer.recognized = (s:TranslationRecognizer, e: TranslationRecognitionEventArgs) => {
+        // console.log("recognized ", e);
+        // setEN(e.result.translations.get("en"));
+        // setPL(e.result.translations.get("pl"));
+        // setUK(e.result.translations.get("uk"));
+        // if (patientSpeaking) {
+          console.log("prekladam pacienta")
+          setCS(e.result.translations.get("cs"));
+          setDisplayText(e.result.text);
+          
+          addEntryClick("Client",e.result.translations.get("cs"),e.result.text)
+        // }
+      };
+
+      recognizer.startContinuousRecognitionAsync();
+    }
+  }
+
+  const onSourceChange = React.useCallback(
+    (ev: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, option: IChoiceGroupOption | undefined) => {
+      // console.dir(option);
+      // way of translation
+      if (option?.key === "l") {
+          console.log("prepinam na lekare")
+          setPatientSpeaking(false)
+          sttFromMicDoctor()
+      } else if (option?.key === "p") {
+        console.log("prepinam na pacienta")
+        setPatientSpeaking(true)
+        sttFromMicPatient()
+      } else{
+        console.log("prepinam na ???")
+          setPatientSpeaking(false)
+      }
+    }, [],
+
+  );
+
+
     return (
 
       <Stack horizontalAlign="center" verticalAlign="start" verticalFill styles={stackStyles} tokens={stackTokens}>
       <img className="App-logo" src={logo} alt="logo" />
       <Pivot aria-label="Basic Pivot Example">
-      <PivotItem headerText="Překlad textu">
+        <PivotItem headerText="Překlad textu">
           <Stack {...columnProps}>
             
             <Label styles={labelStyles}>Text k překladu: (Text v poli níže můžete nahradit libovolným jiným textem)</Label>
@@ -434,6 +675,25 @@ export const App: React.FunctionComponent = () => {
             <Stack>
               <img width="24" alt="English" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg"/>
               <Text>{en}</Text>
+            </Stack>
+            
+          </Stack>
+          
+        </PivotItem>
+        <PivotItem headerText="Překlad dialogu">
+          <Stack {...columnProps}>
+           
+
+            <ChoiceGroup label="Zvolte ikonu pro start konverzace"  options={choiceoptions} onChange={onSourceChange} />
+            <PrimaryButton text="Stop" allowDisabledFocus disabled={!recognizing} checked={false} onClick={sttFromMicStop}/>
+
+            {recognizing? <ProgressIndicator label="Mluvte..." description="překlad probíhá na pozadí do zvolených jazyků." /> : null }
+            
+            {recognizing? <Stack><ActivityItem key={0} activityDescription={patientSpeaking?"prave mluvi pacient":"prave mluvi lekar"} comments={displayText} activityPersonas={patientSpeaking?[{ imageUrl: "http://purecatamphetamine.github.io/country-flag-icons/3x2/UA.svg" }]:[{ imageUrl: "http://purecatamphetamine.github.io/country-flag-icons/3x2/CZ.svg" }]}/></Stack> : null }
+            <Stack>   
+            {theArray.map((item: { key: string | number }) => (
+              <ActivityItem {...item} className="activityItem" />
+            ))}
             </Stack>
             
           </Stack>
