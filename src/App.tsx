@@ -623,6 +623,7 @@ export const App: React.FunctionComponent = () => {
         console.log("prepinam na ???")
           setPatientSpeaking(false)
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [],
 
   );
