@@ -548,8 +548,8 @@ export const App: React.FunctionComponent = () => {
         
       );
 
-    speechConfig.speechRecognitionLanguage = "en-US";
-    // speechConfig.speechRecognitionLanguage = "uk-UA";
+    // speechConfig.speechRecognitionLanguage = "en-US";
+    speechConfig.speechRecognitionLanguage = "uk-UA";
     // optionsSpeech.forEach((option) => {
     //   speechConfig.addTargetLanguage(option.value);
     // });
