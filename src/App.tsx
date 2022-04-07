@@ -41,7 +41,7 @@ const optionsSpeech = [
 ];
 const choiceoptions: IChoiceGroupOption[] = [
   { key: 'p', text: 'Pacient (UA)', iconProps: { iconName: 'Microphone' } },
-  { key: 'l', text: 'Lekar (CZ)', iconProps: { iconName: 'Microphone' } },
+  { key: 'l', text: 'Lékař   (CZ)', iconProps: { iconName: 'Microphone' } },
 ];
 
 
@@ -634,6 +634,27 @@ export const App: React.FunctionComponent = () => {
       <Stack horizontalAlign="center" verticalAlign="start" verticalFill styles={stackStyles} tokens={stackTokens}>
       <img className="App-logo" src={logo} alt="logo" />
       <Pivot aria-label="Basic Pivot Example">
+        <PivotItem headerText="Překlad dialogu">
+          <Stack {...columnProps}>
+           
+
+            <ChoiceGroup label="Zvolte ikonu pro start konverzace"  options={choiceoptions} onChange={onSourceChange} />
+            <PrimaryButton text="Stop" allowDisabledFocus disabled={!recognizing} checked={false} onClick={sttFromMicStop}/>
+
+            {recognizing? <ProgressIndicator label="Mluvte..." description="překlad probíhá na pozadí do zvolených jazyků." /> : null }
+            
+            {recognizing? <Stack><ActivityItem key={0} activityDescription={patientSpeaking?"právě mluví pacient":"právě mluví lékař"} comments={displayText} activityPersonas={patientSpeaking?[{ imageUrl: "http://purecatamphetamine.github.io/country-flag-icons/3x2/UA.svg" }]:[{ imageUrl: "http://purecatamphetamine.github.io/country-flag-icons/3x2/CZ.svg" }]}/></Stack> : null }
+            <Stack>   
+            <Text variant="large">Přepis konverzace:</Text>
+            {theArray.map((item: { key: string | number }) => (
+              <ActivityItem {...item} className="activityItem" />
+            ))}
+            </Stack>
+            
+          </Stack>
+          
+        </PivotItem>
+
         <PivotItem headerText="Překlad textu">
           <Stack {...columnProps}>
             
@@ -646,6 +667,7 @@ export const App: React.FunctionComponent = () => {
             <Text block={true} className="translated-text">{processed? translatedResults?.translations[0].text : ""}</Text>
           </Stack>
         </PivotItem>
+
         <PivotItem headerText="Překlad dokumentu (CZ -> UA)">
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Nahrajte soubor v CZ (*.docx, *.pdf)</Label>
@@ -677,29 +699,10 @@ export const App: React.FunctionComponent = () => {
               <img width="24" alt="English" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg"/>
               <Text>{en}</Text>
             </Stack>
-            
           </Stack>
           
         </PivotItem>
-        <PivotItem headerText="Překlad dialogu">
-          <Stack {...columnProps}>
-           
-
-            <ChoiceGroup label="Zvolte ikonu pro start konverzace"  options={choiceoptions} onChange={onSourceChange} />
-            <PrimaryButton text="Stop" allowDisabledFocus disabled={!recognizing} checked={false} onClick={sttFromMicStop}/>
-
-            {recognizing? <ProgressIndicator label="Mluvte..." description="překlad probíhá na pozadí do zvolených jazyků." /> : null }
-            
-            {recognizing? <Stack><ActivityItem key={0} activityDescription={patientSpeaking?"prave mluvi pacient":"prave mluvi lekar"} comments={displayText} activityPersonas={patientSpeaking?[{ imageUrl: "http://purecatamphetamine.github.io/country-flag-icons/3x2/UA.svg" }]:[{ imageUrl: "http://purecatamphetamine.github.io/country-flag-icons/3x2/CZ.svg" }]}/></Stack> : null }
-            <Stack>   
-            {theArray.map((item: { key: string | number }) => (
-              <ActivityItem {...item} className="activityItem" />
-            ))}
-            </Stack>
-            
-          </Stack>
-          
-        </PivotItem>
+        
       </Pivot>
       </Stack>
     );
