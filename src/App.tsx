@@ -31,6 +31,73 @@ import {
 } from '@fluentui/react/lib/DocumentCard';
 import { ImageFit } from '@fluentui/react/lib/Image';
 import { ActivityItem, IActivityItemProps, Link } from '@fluentui/react';
+import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
+
+
+
+const optionsLangFrom: IDropdownOption[] = [
+  { key: 'bg', text: 'Bulgarian' },
+  { key: 'hr', text: 'Croatian' },
+  { key: 'cs', text: 'Czech' },
+  { key: 'da', text: 'Danish' },
+  { key: 'nl', text: 'Dutch' },
+  { key: 'en', text: 'English' },
+  { key: 'et', text: 'Estonian' },
+  { key: 'fi', text: 'Finnish' },
+  { key: 'fr', text: 'French' },
+  { key: 'fr-ca', text: 'French (Canada)' },
+  { key: 'de', text: 'German' },
+  { key: 'el', text: 'Greek' },
+  { key: 'hu', text: 'Hungarian' },
+  { key: 'it', text: 'Italian' },
+  { key: 'ja', text: 'Japanese' },
+  { key: 'ko', text: 'Korean' },
+  { key: 'lv', text: 'Latvian' },
+  { key: 'lt', text: 'Lithuanian' },
+  { key: 'nb', text: 'Norwegian' },
+  { key: 'pl', text: 'Polish' },
+  { key: 'ro', text: 'Romanian' },
+  { key: 'ru', text: 'Russian' },
+  { key: 'sk', text: 'Slovak' },
+  { key: 'sl', text: 'Slovenian' },
+  { key: 'es', text: 'Spanish' },
+  { key: 'sv', text: 'Swedish' },
+  { key: 'tr', text: 'Turkish' },
+  { key: 'uk', text: 'Ukrainian' },
+  
+];
+
+const optionsLangTo: IDropdownOption[] = [
+  { key: 'bg', text: 'Bulgarian' },
+{ key: 'hr', text: 'Croatian' },
+{ key: 'cs', text: 'Czech' },
+{ key: 'da', text: 'Danish' },
+{ key: 'nl', text: 'Dutch' },
+{ key: 'en', text: 'English' },
+{ key: 'et', text: 'Estonian' },
+{ key: 'fi', text: 'Finnish' },
+{ key: 'fr', text: 'French' },
+{ key: 'fr-ca', text: 'French (Canada)' },
+{ key: 'de', text: 'German' },
+{ key: 'el', text: 'Greek' },
+{ key: 'hu', text: 'Hungarian' },
+{ key: 'it', text: 'Italian' },
+{ key: 'ja', text: 'Japanese' },
+{ key: 'ko', text: 'Korean' },
+{ key: 'lv', text: 'Latvian' },
+{ key: 'lt', text: 'Lithuanian' },
+{ key: 'nb', text: 'Norwegian' },
+{ key: 'pl', text: 'Polish' },
+{ key: 'ro', text: 'Romanian' },
+{ key: 'ru', text: 'Russian' },
+{ key: 'sk', text: 'Slovak' },
+{ key: 'sl', text: 'Slovenian' },
+{ key: 'es', text: 'Spanish' },
+{ key: 'sv', text: 'Swedish' },
+{ key: 'tr', text: 'Turkish' },
+{ key: 'uk', text: 'Ukrainian' },
+
+];
 
 
 const speechsdk = require("microsoft-cognitiveservices-speech-sdk");
@@ -67,10 +134,10 @@ initializeIcons();
 // const boldStyle: Partial<ITextStyles> = { root: { fontWeight: FontWeights.semibold } };
 
 
-const options: IChoiceGroupOption[] = [
-  { key: 'ukcs', text: 'Ukrajinsky -> Česky' },
-  { key: 'csuk', text: 'Česky -> Ukrajinsky' },
-];
+// const options: IChoiceGroupOption[] = [
+//   { key: 'ukcs', text: 'Ukrajinsky -> Česky' },
+//   { key: 'csuk', text: 'Česky -> Ukrajinsky' },
+// ];
 
 const stackStyles: Partial<IStackStyles> = { root: { width: 850 } };
 const stackTokens = { childrenGap: 50 };
@@ -124,19 +191,22 @@ export const App: React.FunctionComponent = () => {
   
 
   const [fileSelected, setFileSelected] = useState<File| null>();
-  const [text, setText] = React.useState("Привіт Люба");
+  const [text, setText] = React.useState("We want to be the enablers of meaningful human connection because togetherness is powerful. We create the crossroads that allow us all to meet, to agree, to disagree and to care. Together we can see more, feel more and change more for the planet, people and communities. We believe that each moment we are together matters and each conversation and meaningful connection could be the start of a new legacy. In today’s world, human togetherness, sense of belonging and connecting to nature are more important than ever.");
   const [uploading, setUploading] = useState(false);
   const [processed, setProcessed] = useState(false);
   const [processedDocument, setProcessedDocument] = useState(false);
   const [translatedResults, setTranslatedResults] = useState<translateTextResponse>();
   const [translatedFiles, setTranslatedFiles] = useState<translateDocResponse>();
 
-  const [fromLang, setFromLang] = useState<string>("uk");
-  const [toLang, setToLang] = useState<string>("cs");
+  // const [fromLang, setFromLang] = useState<string>("uk");
+  // const [toLang, setToLang] = useState<string>("cs");
   
 
   const addDownloadIcon: IIconProps = { iconName: 'Download' };
 
+  //translate text dropdown
+  const [selectedItemLangFrom, setSelectedItemLangFrom] = React.useState<IDropdownOption>(optionsLangFrom[5]);
+  const [selectedItemLangTo, setSelectedItemLangTo] = React.useState<IDropdownOption>(optionsLangTo[2]);
   
   const sleep = (milliseconds: number) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -189,20 +259,20 @@ export const App: React.FunctionComponent = () => {
       .then(data => data as T)
   }
 
-  const onChoiceChange = React.useCallback(
-    (ev: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, option: IChoiceGroupOption | undefined) => {
-      // console.dir(option);
-      // way of translation
-      if (option?.key === "csuk") {
-          setFromLang("cs")
-          setToLang("uk")
-      } else {
-        setFromLang("uk")
-        setToLang("cs")
-      }
-    }, [],
+  // const onChoiceChange = React.useCallback(
+  //   (ev: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, option: IChoiceGroupOption | undefined) => {
+  //     // console.dir(option);
+  //     // way of translation
+  //     if (option?.key === "csuk") {
+  //         setFromLang("cs")
+  //         setToLang("uk")
+  //     } else {
+  //       setFromLang("uk")
+  //       setToLang("cs")
+  //     }
+  //   }, [],
 
-  );
+  // );
 
   const onTextChange = React.useCallback(
     (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
@@ -221,10 +291,17 @@ export const App: React.FunctionComponent = () => {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "text/plain");
 
+    // console.log('Translating from ', fromLang)
+    // console.log('Translating to ', toLang)
+
+    // console.log('Translating from ', selectedItemLangFrom.key)
+    // console.log('Translating to ', selectedItemLangTo)
+
     var requestOptions : RequestInit = {
       method: 'POST',
       headers: myHeaders,
-      body: '{"text": "'+text+'", "fromLang": "'+fromLang+'", "toLang":"'+toLang+'"}',
+      // body: '{"text": "'+text+'", "fromLang": "'+fromLang+'", "toLang":"'+toLang+'"}',
+      body: '{"text": "'+text+'", "fromLang": "'+selectedItemLangFrom.key+'", "toLang":"'+selectedItemLangTo.key+'"}',
       redirect: 'follow',
     };
     
@@ -628,12 +705,42 @@ export const App: React.FunctionComponent = () => {
 
   );
 
+  const onChangeLangFrom = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption<any> | undefined, index?: number | undefined): void => {
+    if (item) {
+      setSelectedItemLangFrom(item);
+    }
+  };
+
+  const onChangeLangTo = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption<any> | undefined, index?: number | undefined): void => {
+    if (item) {
+      setSelectedItemLangTo(item);
+    }
+  };
+
 
     return (
 
       <Stack horizontalAlign="center" verticalAlign="start" verticalFill styles={stackStyles} tokens={stackTokens}>
       <img className="App-logo" src={logo} alt="logo" />
       <Pivot aria-label="Basic Pivot Example">
+        
+        <PivotItem headerText="Překlad textu">
+          <Stack {...columnProps}>
+            
+            <Label styles={labelStyles}>Text k překladu: (Text v poli níže můžete nahradit libovolným jiným textem)</Label>
+            {/* Translation */}
+            <TextField label="Váš text" multiline rows={3} value={text} onChange={onTextChange} required={true} />
+            
+            <Dropdown placeholder="Select an option" label="Překlad z:" selectedKey={selectedItemLangFrom ? selectedItemLangFrom.key : "uk"} options={optionsLangFrom} onChange={onChangeLangFrom}  />
+            <Dropdown placeholder="Select an option" label="Překlad do:" selectedKey={selectedItemLangTo ? selectedItemLangTo.key : "cs"} options={optionsLangTo} onChange={onChangeLangTo} />
+            
+            <PrimaryButton text="Přeložit" allowDisabledFocus disabled={uploading} checked={false} onClick={onTranslate}/>
+            <Label styles={labelStyles}>Výsledek</Label>
+            <Text block={true} className="translated-text">{processed? translatedResults?.translations[0].text : ""}</Text>
+          </Stack>
+        </PivotItem>
+
+{false && (
         <PivotItem headerText="Překlad dialogu">
           <Stack {...columnProps}>
            
@@ -654,20 +761,8 @@ export const App: React.FunctionComponent = () => {
           </Stack>
           
         </PivotItem>
-
-        <PivotItem headerText="Překlad textu">
-          <Stack {...columnProps}>
-            
-            <Label styles={labelStyles}>Text k překladu: (Text v poli níže můžete nahradit libovolným jiným textem)</Label>
-            {/* Translation */}
-            <TextField label="Váš text" multiline rows={3} value={text} onChange={onTextChange} required={true} />
-            <ChoiceGroup defaultSelectedKey="ukcs" options={options} onChange={onChoiceChange} label="Směr překladu" required={true} />
-            <PrimaryButton text="Přeložit" allowDisabledFocus disabled={uploading} checked={false} onClick={onTranslate}/>
-            <Label styles={labelStyles}>Výsledek</Label>
-            <Text block={true} className="translated-text">{processed? translatedResults?.translations[0].text : ""}</Text>
-          </Stack>
-        </PivotItem>
-
+)}
+{false && (
         <PivotItem headerText="Překlad dokumentu (CZ -> UA)">
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Nahrajte soubor v CZ (*.docx, *.pdf)</Label>
@@ -678,6 +773,8 @@ export const App: React.FunctionComponent = () => {
           </Stack>
           
         </PivotItem>
+)}
+{false && (
         <PivotItem headerText="Překlad mluveného slova">
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Zmáčkněte start a začněte mluvit Česky</Label>
@@ -702,7 +799,7 @@ export const App: React.FunctionComponent = () => {
           </Stack>
           
         </PivotItem>
-        
+)}
       </Pivot>
       </Stack>
     );
