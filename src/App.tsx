@@ -297,11 +297,14 @@ export const App: React.FunctionComponent = () => {
     // console.log('Translating from ', selectedItemLangFrom.key)
     // console.log('Translating to ', selectedItemLangTo)
 
+    // console.log("text",)
+    let tt =  text.replaceAll("\n","<NEWLINE>").replaceAll("\r","<NEWLINE>")
+
     var requestOptions : RequestInit = {
       method: 'POST',
       headers: myHeaders,
       // body: '{"text": "'+text+'", "fromLang": "'+fromLang+'", "toLang":"'+toLang+'"}',
-      body: '{"text": "'+text+'", "fromLang": "'+selectedItemLangFrom.key+'", "toLang":"'+selectedItemLangTo.key+'"}',
+      body: '{"text": "'+tt+'", "fromLang": "'+selectedItemLangFrom.key+'", "toLang":"'+selectedItemLangTo.key+'"}',
       redirect: 'follow',
     };
     
@@ -313,7 +316,14 @@ export const App: React.FunctionComponent = () => {
         .catch(error => console.log('error', error));
   
     if (data) {
+      console.log("data",data)
+      // if (data[0]) {
+
+      // }
       setTranslatedResults(data[0]);
+
+    } else {
+      console.log("no data")
     }
     
     setProcessed(true)
@@ -729,14 +739,15 @@ export const App: React.FunctionComponent = () => {
             
             <Label styles={labelStyles}>Text k překladu: (Text v poli níže můžete nahradit libovolným jiným textem)</Label>
             {/* Translation */}
-            <TextField label="Váš text" multiline rows={3} value={text} onChange={onTextChange} required={true} />
+            <TextField label="Váš text" multiline rows={5} value={text} onChange={onTextChange} required={true} />
             
             <Dropdown placeholder="Select an option" label="Překlad z:" selectedKey={selectedItemLangFrom ? selectedItemLangFrom.key : "uk"} options={optionsLangFrom} onChange={onChangeLangFrom}  />
             <Dropdown placeholder="Select an option" label="Překlad do:" selectedKey={selectedItemLangTo ? selectedItemLangTo.key : "cs"} options={optionsLangTo} onChange={onChangeLangTo} />
             
             <PrimaryButton text="Přeložit" allowDisabledFocus disabled={uploading} checked={false} onClick={onTranslate}/>
             <Label styles={labelStyles}>Výsledek</Label>
-            <Text block={true} className="translated-text">{processed? translatedResults?.translations[0].text : ""}</Text>
+            {/* <Text block={true} className="translated-text">{processed? translatedResults?.translations[0].text.replaceAll("<NEWLINE>","<hr>>") : ""}</Text> */}
+            <TextField  multiline rows={5}  value={processed? translatedResults?.translations[0].text.replaceAll("<NEWLINE>","\n") : ""} />
           </Stack>
         </PivotItem>
 
