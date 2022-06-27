@@ -751,7 +751,7 @@ export const App: React.FunctionComponent = () => {
           </Stack>
         </PivotItem>
 
-{false && (
+{true && (
         <PivotItem headerText="Překlad dialogu">
           <Stack {...columnProps}>
            
@@ -773,7 +773,7 @@ export const App: React.FunctionComponent = () => {
           
         </PivotItem>
 )}
-{false && (
+{true && (
         <PivotItem headerText="Překlad dokumentu (CZ -> UA)">
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Nahrajte soubor v CZ (*.docx, *.pdf)</Label>
@@ -785,7 +785,7 @@ export const App: React.FunctionComponent = () => {
           
         </PivotItem>
 )}
-{false && (
+{true && (
         <PivotItem headerText="Překlad mluveného slova">
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Zmáčkněte start a začněte mluvit Česky</Label>
