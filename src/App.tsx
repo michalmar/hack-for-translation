@@ -32,7 +32,8 @@ import {
 import { ImageFit } from '@fluentui/react/lib/Image';
 import { ActivityItem, IActivityItemProps, Link } from '@fluentui/react';
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
-
+// import { DetailsList, DetailsRow, IDetailsRowStyles, IDetailsListProps } from '@fluentui/react/lib/DetailsList';
+// import { Document, Page } from 'react-pdf';
 
 
 const optionsLangFrom: IDropdownOption[] = [
@@ -158,6 +159,11 @@ type speechTokenResponse = {
   authToken: string,
   region: string
 }
+type formRecoResponseRecord = {
+  key: string,
+  val: string,
+  confidence: string
+}
 
 type translateTextResponse = {
   translations: translateTextResponseRecord[];
@@ -197,6 +203,8 @@ export const App: React.FunctionComponent = () => {
   const [processedDocument, setProcessedDocument] = useState(false);
   const [translatedResults, setTranslatedResults] = useState<translateTextResponse>();
   const [translatedFiles, setTranslatedFiles] = useState<translateDocResponse>();
+
+  const [formRecoResults, setFormRecoResults] = useState<formRecoResponseRecord[]>([]);
 
   // const [fromLang, setFromLang] = useState<string>("uk");
   // const [toLang, setToLang] = useState<string>("cs");
@@ -280,6 +288,41 @@ export const App: React.FunctionComponent = () => {
     },
     [],
   );
+
+  const onFormUploaded = async()  => {
+    if (fileSelected) {
+      setUploading(true);
+      setProcessed(false);
+      setProcessedDocument(false);
+      const formData = new FormData();
+      formData.append('file', fileSelected);
+      const requestOptions = {
+        method: 'POST',
+        body: formData,
+      };
+
+      let data = await api<formRecoResponseRecord>("/api/form-reco-analyze", requestOptions)
+          .then((response) => {
+            // console.log("xxxxx", response)
+            return response;
+            
+          })
+          .catch(error => console.log('error', error));
+    
+      if (data) {
+        console.log("data",data)
+
+        setFormRecoResults(data);
+
+      } else {
+        console.log("no data")
+      }
+      
+      setProcessed(true);
+      setProcessedDocument(true);
+      setUploading(false);
+    }
+  }
 
   const onTranslate = async () => {
     // prepare UI
@@ -402,6 +445,38 @@ export const App: React.FunctionComponent = () => {
             </DocumentCard>
       </Stack>
     )
+  }
+
+  function showAnalyzedDocumentResult(response: formRecoResponseRecord[] | undefined): React.ReactNode {
+    if (response) {
+      
+      // loop through response array
+      return (
+        <Stack>
+          {response.map((item) => {
+            return (
+              <Stack key={getRandomInt()}>
+                <Text variant="medium"><strong>{item.key}</strong>:&nbsp;{item.val}</Text>
+                <Text variant="small">Confidence:&nbsp;{item.confidence}</Text>
+              </Stack>
+            )
+          })}
+        </Stack>
+      )
+    }
+  }
+  function showUploadedDocument(): React.ReactNode {
+    if (fileSelected) {
+      return (
+            // <Document file={"/test.pdf"}>
+            //   <Page pageNumber={1} />
+            // </Document>
+
+            <Stack>
+              <Text variant="small">file:&nbsp;{fileSelected.name}</Text>
+            </Stack>
+      )
+    }
   }
 
   async function getToken():Promise<speechTokenResponse>{
@@ -781,6 +856,20 @@ export const App: React.FunctionComponent = () => {
             <PrimaryButton text="Přeložit dokument" allowDisabledFocus disabled={uploading} checked={false} onClick={onFileUpload}/>
             {uploading? <ProgressIndicator label="Pracuji..." description="Nahrávám dokument a probíhá překlad." /> : null }
             {processedDocument? showTranslatedDocumentResult(translatedFiles) :null}
+          </Stack>
+          
+        </PivotItem>
+)}
+
+{true && (
+        <PivotItem headerText="Analyza formulare">
+          <Stack {...columnProps}>
+            <Label styles={labelStyles}>Nahrajte soubor s formularem (*.docx, *.pdf)</Label>
+            <input  name="file" type="file" onChange={onFileChange}  />
+            <PrimaryButton text="Analyzovat" allowDisabledFocus disabled={uploading} checked={false} onClick={onFormUploaded}/>
+            {uploading? <ProgressIndicator label="Pracuji..." description="Nahrávám dokument a probíhá analyza." /> : null }
+            {processedDocument? showAnalyzedDocumentResult(formRecoResults) :null}
+            {(uploading || processedDocument)? showUploadedDocument(): null }
           </Stack>
           
         </PivotItem>
