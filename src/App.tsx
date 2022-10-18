@@ -848,12 +848,13 @@ export const App: React.FunctionComponent = () => {
 )}
 
 {true && (
-        <PivotItem headerText="Analyza formulare">
+        <PivotItem headerText="Analýza formuláře">
           <Stack {...columnProps}>
-            <Label styles={labelStyles}>Nahrajte soubor s formularem (*.docx, *.pdf)</Label>
+            <Text variant="small">V tuto chvíli je vytrénováný model pouze na SIPO formuláři.</Text>
+            <Label styles={labelStyles}>Nahrajte soubor se SIPO formulářem (*.docx, *.pdf)</Label>
             <input  name="file" type="file" onChange={onFileChange}  />
             <PrimaryButton text="Analyzovat" allowDisabledFocus disabled={uploading} checked={false} onClick={onFormUploaded}/>
-            {uploading? <ProgressIndicator label="Pracuji..." description="Nahrávám dokument a probíhá analyza." /> : null }
+            {uploading? <ProgressIndicator label="Pracuji..." description="Nahrávám dokument a probíhá analýza." /> : null }
             {processedDocument? showAnalyzedDocumentResult(formRecoResults) :null}
             {(processedDocument)? showUploadedDocument(): null }
 
