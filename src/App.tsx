@@ -34,6 +34,8 @@ import { ActivityItem, IActivityItemProps, Link } from '@fluentui/react';
 import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 // import { DetailsList, DetailsRow, IDetailsRowStyles, IDetailsListProps } from '@fluentui/react/lib/DetailsList';
 // import { Document, Page } from 'react-pdf';
+import { Document, Page, pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 
 const optionsLangFrom: IDropdownOption[] = [
@@ -267,21 +269,6 @@ export const App: React.FunctionComponent = () => {
       .then(data => data as T)
   }
 
-  // const onChoiceChange = React.useCallback(
-  //   (ev: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, option: IChoiceGroupOption | undefined) => {
-  //     // console.dir(option);
-  //     // way of translation
-  //     if (option?.key === "csuk") {
-  //         setFromLang("cs")
-  //         setToLang("uk")
-  //     } else {
-  //       setFromLang("uk")
-  //       setToLang("cs")
-  //     }
-  //   }, [],
-
-  // );
-
   const onTextChange = React.useCallback(
     (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
       setText(newValue || '');
@@ -468,12 +455,11 @@ export const App: React.FunctionComponent = () => {
   function showUploadedDocument(): React.ReactNode {
     if (fileSelected) {
       return (
-            // <Document file={"/test.pdf"}>
-            //   <Page pageNumber={1} />
-            // </Document>
-
             <Stack>
               <Text variant="small">file:&nbsp;{fileSelected.name}</Text>
+              <Document file={fileSelected}>
+                <Page pageNumber={1}/>
+              </Document>
             </Stack>
       )
     }
@@ -869,7 +855,8 @@ export const App: React.FunctionComponent = () => {
             <PrimaryButton text="Analyzovat" allowDisabledFocus disabled={uploading} checked={false} onClick={onFormUploaded}/>
             {uploading? <ProgressIndicator label="Pracuji..." description="Nahrávám dokument a probíhá analyza." /> : null }
             {processedDocument? showAnalyzedDocumentResult(formRecoResults) :null}
-            {(uploading || processedDocument)? showUploadedDocument(): null }
+            {(processedDocument)? showUploadedDocument(): null }
+
           </Stack>
           
         </PivotItem>
