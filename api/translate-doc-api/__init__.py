@@ -44,7 +44,7 @@ def translate_doc(filename_src, filename_tgt, lang_from, lang_to):
                 },
                 "targets": [
                     {
-                        "targetUrl": f"{get_blob_base_url_from_connection_string()}/tgt/{filename_tgt}.docx",
+                        "targetUrl": f"{get_blob_base_url_from_connection_string()}/tgt/{filename_tgt}",
                         "language": lang_to
                     },
                 ]
@@ -79,14 +79,52 @@ def upload_blob_to_storage(filename, contents):
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
     # checking for a POST request.
+    fromLang = req.params.get('fromLang')
+    if not fromLang:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
+        else:
+            fromLang = req_body.get('fromLang')
+    
+    toLang = req.params.get('toLang')
+    if not toLang:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
+        else:
+            toLang = req_body.get('toLang')
+            
+    LANG_FROM = fromLang # "cs" 
+    LANG_TO = toLang # "uk"
+    logging.info(f"lang_from: {LANG_FROM}, lang_to: {LANG_TO}")
 
-    LANG_FROM = "cs" 
-    LANG_TO = "uk"
+    # print()
+
+
 
     # logging.info(req.get_json())
+    process_files_count = 0
     for input_file in req.files.values():
+        logging.info(f"getting file")
         filename = input_file.filename
         contents = input_file.stream.read()
+
+
+        # # Get the file name
+        filename = input_file.filename
+        # # Get the file contents
+        file_contents = input_file.read()
+        # # Get the file extension
+        file_extension = filename.rsplit('.', 1)[1].lower()
+        # # Get the file size
+        file_size = sys.getsizeof(file_contents)
+        # # Get the file type
+        file_type = input_file.content_type
+
+        logging.info(f"filename: {filename}, file_extension: {file_extension}, file_size: {file_size}, file_type: {file_type}")
 
         guid = uuid.uuid1()
 
@@ -112,4 +150,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(
                 ret,
                 status_code=200
+        )
+        process_files_count += 1
+    
+    if process_files_count == 0:
+        return func.HttpResponse(
+             "Please pass a file in the request body",
+             status_code=400
         )
