@@ -387,8 +387,10 @@ export const App: React.FunctionComponent = () => {
           redirect: 'follow'
         };
 
+        // body: '{"text": "'+tt+'", "fromLang": "'+selectedItemLangFrom.key+'", "toLang":"'+selectedItemLangTo.key+'"}',
 
-        let data = await api2<translateDocResponse>("/api/translate-doc-api", requestOptions)
+
+        let data = await api2<translateDocResponse>("/api/translate-doc-api?fromLang="+selectedItemLangFrom.key+"&toLang="+selectedItemLangTo.key+"", requestOptions)
           .then((response) => {
             return response;
           })
@@ -839,6 +841,9 @@ export const App: React.FunctionComponent = () => {
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Nahrajte soubor v CZ (*.docx, *.pdf)</Label>
             <input  name="file" type="file" onChange={onFileChange}  />
+            <Dropdown placeholder="Select an option" label="Překlad z:" selectedKey={selectedItemLangFrom ? selectedItemLangFrom.key : "uk"} options={optionsLangFrom} onChange={onChangeLangFrom}  />
+            <Dropdown placeholder="Select an option" label="Překlad do:" selectedKey={selectedItemLangTo ? selectedItemLangTo.key : "cs"} options={optionsLangTo} onChange={onChangeLangTo} />
+            
             <PrimaryButton text="Přeložit dokument" allowDisabledFocus disabled={uploading} checked={false} onClick={onFileUpload}/>
             {uploading? <ProgressIndicator label="Pracuji..." description="Nahrávám dokument a probíhá překlad." /> : null }
             {processedDocument? showTranslatedDocumentResult(translatedFiles) :null}
