@@ -400,7 +400,7 @@ export const App: React.FunctionComponent = () => {
           setTranslatedFiles(data)
         }
           
-        await sleep(10*1000) //wait 10 seconds
+        // await sleep(10*1000) //wait 10 seconds
         
         setProcessedDocument(true)
       }
@@ -837,7 +837,7 @@ export const App: React.FunctionComponent = () => {
         </PivotItem>
 )}
 {true && (
-        <PivotItem headerText="Překlad dokumentu (CZ -> UA)">
+        <PivotItem headerText="Překlad dokumentu">
           <Stack {...columnProps}>
             <Label styles={labelStyles}>Nahrajte soubor v CZ (*.docx, *.pdf)</Label>
             <input  name="file" type="file" onChange={onFileChange}  />
