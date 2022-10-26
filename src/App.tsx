@@ -218,10 +218,6 @@ export const App: React.FunctionComponent = () => {
   const [selectedItemLangFrom, setSelectedItemLangFrom] = React.useState<IDropdownOption>(optionsLangFrom[5]);
   const [selectedItemLangTo, setSelectedItemLangTo] = React.useState<IDropdownOption>(optionsLangTo[2]);
   
-  const sleep = (milliseconds: number) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
-
   function getRandomInt() {
     return Math.floor(Math.random() * 10000);
   }
