@@ -849,7 +849,7 @@ export const App: React.FunctionComponent = () => {
 )}
 
 {true && (
-        <PivotItem headerText="Analýza formuláře">
+        <PivotItem headerText="Analýza formuláře ">
           <Stack {...columnProps}>
             <Text variant="small">V tuto chvíli je vytrénováný model pouze na SIPO formuláři.</Text>
             <Label styles={labelStyles}>Nahrajte soubor se SIPO formulářem (*.docx, *.pdf)</Label>
