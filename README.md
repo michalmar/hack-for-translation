@@ -15,6 +15,9 @@ Build Satus:
 
     `npm install`
 
+- TO install SWA (Static Web Apps CLI)
+    `npm install -g @azure/static-web-apps-cli`
+
 ## Local Debug
 
 - Runs the app and also asociated Azure Functions (apis) in debug mode.
@@ -22,6 +25,7 @@ Build Satus:
     `swa start build --api-location api`
 
     > note: you need to run `npm run build` first
+    > note: you need to install requirements.txt first to .venv, e.g.: `python -m pip install -r requirements.txt`
 
 - Start the web app only
     

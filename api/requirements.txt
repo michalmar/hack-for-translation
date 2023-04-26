@@ -3,6 +3,7 @@
 # Manually managing azure-functions-worker may cause unexpected issues
 
 requests
+azure-core
 azure-functions
 azure-storage-blob
 azure-ai-formrecognizer
