@@ -45,3 +45,31 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
+
+
+
+### fixing M1/M2 compatibility
+
+based on: https://github.com/Azure/azure-functions-core-tools/issues/2834#issuecomment-1206135712
+
+```
+brew install python@3.9
+brew uninstall azure-functions-core-tools@4
+/opt/homebrew/bin/pip3 install grpcio
+npm i -g azure-functions-core-tools@4.0.4483
+
+!THIS DIDN'T WORK FOR ME! cp /opt/homebrew/lib/python3.9/site-packages/grpc/_cython/cygrpc.cpython-39-darwin.so /usr/local/lib/node_modules/azure-functions-core-tools/bin/workers/python/3.9/OSX/X64/grpc/_cython/cygrpc.cpython-39-darwin.so
+
+
+cp /opt/homebrew/lib/python3.9/site-packages/grpc/_cython/cygrpc.cpython-39-darwin.so /Users/mimarusa/.swa/core-tools/v4/workers/python/3.9/OSX/X64/grpc/_cython/cygrpc.cpython-39-darwin.so
+
+
+```
+
+### Create Python VENV based on specific Python version
+
+```
+cd api
+python3.9 -m venv .venv
+source .venv/bin/activate
+```
