@@ -28,6 +28,8 @@ Build Satus:
     > note: you need to install requirements.txt first to .venv, e.g.: `python -m pip install -r requirements.txt`
 
 - Start the web app only
+
+    `nvm use 16`
     
     `npm start`
 
